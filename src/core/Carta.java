@@ -1,3 +1,12 @@
+/**
+ * Clase para representar una carta individual.
+ * Contiene información sobre el palo y el valor de la carta.
+ * E.G: La carta Ah se inicializaría con
+ *      new Carta(E_Carta_Palo.HEARTS, E_Carta_Valor.A)
+ *              ´o bien
+ *      CartaFactory.crearCarta(String palo, int valor);
+ */
+
 package core;
 
 public class Carta {
