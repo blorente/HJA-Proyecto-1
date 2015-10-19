@@ -38,7 +38,7 @@ public final class Analizador {
      * Precondición: m tiene como máximo 5 cartas.
      * Postcondición: La lista de retorno tiene la mejor mano como primer elemento
      */
-    public static List<Jugada> analizaMano(Mano m) {
+    public static List<I_Jugada> analizaMano(Mano m) {
         return null;
     }
 
@@ -65,5 +65,18 @@ public final class Analizador {
     public static float comparaListas (List<Carta> l1, List<Carta> l2) {
         return 0.0f;
     }
+
+    /**
+     * Método que coge las posibles manos que se pueden formar entre las cartas del jugador
+     * y las de la mesa, y devuelve una lista de jugadas que tiene en total el jugador.
+     * @param j
+     * @param mesa
+     * @return
+     */
+    public static List<I_Jugada> analizaJugador(Jugador j, List<Carta> mesa) {
+        return null;
+    }
+
+    //TODO: Añadir funcionalidad para el apartado 3
 
 }

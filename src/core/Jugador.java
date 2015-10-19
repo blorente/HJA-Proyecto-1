@@ -1,7 +1,12 @@
 /**
  * Clase que se encargará de:
- *  - Guardar una mano de (máximo) 5 cartas
- *  - Guardar información sobre las jugadas de mano (si tiene parejas, draws, tríos...)
+ *  - Guardar las hole cards de un jugador
+ *  - Guardar información sobre las jugadas del jugador con la mesa
+ *         (se harán con la unión de todas las jugadas de todas las posibles manos)
+ *
+ *  Por ahora se parece mucho a la clase Mano, pero cuando necesitemos puede extenderse más,
+ *  para incluir omaha por ejemplo. Tambíen, la diferencia es que este jugador
+ *  NO tiene información sobre las cartas en la mesa, eso hay que pasarselo al analizador por separado.
  */
 
 package core;
@@ -10,7 +15,7 @@ import core.exceptions.EManoLlena;
 
 import java.util.List;
 
-public class Mano {
+public class Jugador {
 
     //-----------------------
     // CAMPOS Y CONSTRUCTORES
@@ -29,7 +34,7 @@ public class Mano {
     /**
      * Constructor vacío que inicializa las listas
      */
-    public Mano() {
+    public Jugador() {
 
     }
 
@@ -55,10 +60,16 @@ public class Mano {
     public void llenarMano(List<Carta> cartas) throws EManoLlena {}
 
     /**
-     * Método que asigna una jugada a la mano, por ejemplo un FlushDraw
+     * Método que añade una jugada al jugador, con cuidado de que no estén repetidas.
      * @param jugada
      */
-    public void asignarJugada(I_Jugada jugada) {}
+    public void añadirJugada(I_Jugada jugada) {}
+
+    /**
+     * Método que añade una lista de jugadas al jugador.
+     * @param jugada
+     */
+    public void añadirJugadas(List<I_Jugada> jugada) {}
 
     //-----------------------
     // GETTERS Y SETTERS

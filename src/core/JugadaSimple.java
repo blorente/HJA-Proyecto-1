@@ -1,6 +1,6 @@
 package core;
 
-public class JugadaSimple implements Jugada {
+public class JugadaSimple implements I_Jugada {
 
     private E_Jugada_Tipo tipo;
 

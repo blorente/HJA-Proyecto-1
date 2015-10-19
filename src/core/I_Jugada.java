@@ -8,7 +8,7 @@
 
 package core;
 
-public interface Jugada {
+public interface I_Jugada {
 
 
 //      EJEMPLOS DE MÉTODOS
