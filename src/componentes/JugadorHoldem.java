@@ -9,13 +9,14 @@
  *  NO tiene información sobre las cartas en la mesa, eso hay que pasarselo al analizador por separado.
  */
 
-package core;
+package componentes;
 
-import core.exceptions.EManoLlena;
+import excepciones.EManoLlena;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Jugador {
+public class JugadorHoldem implements I_Jugador {
 
     //-----------------------
     // CAMPOS Y CONSTRUCTORES
@@ -30,12 +31,17 @@ public class Jugador {
      * Lista de jugadas que tiene la mano, ordenadas de mejor a peor.
      */
     private List<I_Jugada> jugadas;
+    
+    /**
+     * ID del jugador
+     */
+    private String id;
 
     /**
      * Constructor vacío que inicializa las listas
      */
-    public Jugador() {
-
+    public JugadorHoldem() {
+    	cartas = new ArrayList<Carta>();
     }
 
     //-----------------------
@@ -49,7 +55,14 @@ public class Jugador {
      * @param carta: Carta para añadir.
      * @throws EManoLlena
      */
-    public void anadirCarta(Carta carta) throws EManoLlena {}
+    @Override
+    public void anadirCarta(Carta carta) throws EManoLlena {
+    	if (this.cartas.size() == 2) {
+            throw new EManoLlena();
+        } else {
+            this.cartas.add(carta);
+        }
+    }
 
     /**
      * Método para poder asignar listas enteras de cartas a la mano.
@@ -57,30 +70,45 @@ public class Jugador {
      * @param cartas
      * @throws EManoLlena
      */
+    @Override
     public void llenarMano(List<Carta> cartas) throws EManoLlena {}
 
     /**
      * Método que añade una jugada al jugador, con cuidado de que no estén repetidas.
      * @param jugada
      */
-    public void añadirJugada(I_Jugada jugada) {}
+    @Override
+    public void anadirJugada(I_Jugada jugada) {}
 
     /**
      * Método que añade una lista de jugadas al jugador.
      * @param jugada
      */
-    public void añadirJugadas(List<I_Jugada> jugada) {}
+    @Override
+    public void anadirJugadas(List<I_Jugada> jugada) {}
 
     //-----------------------
     // GETTERS Y SETTERS
     //-----------------------
 
+    @Override
     public List<Carta> getCartas() {
         return cartas;
     }
 
+    @Override
     public List<I_Jugada> getJugadas() {
         return jugadas;
+    }
+    
+    @Override
+    public String getId() {
+    	return id;
+    }
+    
+    @Override
+    public void setId(String id) {
+    	this.id = id;
     }
 
     /**

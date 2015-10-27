@@ -29,4 +29,11 @@ public class Carta {
     public E_Carta_Palo getPalo() {
         return palo;
     }
+    
+    public String toString() {
+    	StringBuilder builder = new StringBuilder();
+    	builder.append(this.valor);
+    	builder.append(this.palo);
+		return builder.toString();
+    }
 }

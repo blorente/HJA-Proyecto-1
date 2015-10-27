@@ -7,12 +7,9 @@
 package componentes;
 
 import excepciones.EManoLlena;
-import excepciones.ErrorTamLinea;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import constantes.Constantes;
 
 public class Mano {
 
@@ -50,52 +47,40 @@ public class Mano {
      */
     public void anadirCarta(Carta carta) throws EManoLlena {
     	
-    	int valorCarta, valorCartaDeLaLista, i = 0;
-    	boolean encontrado = false;
+    	ArrayList<Carta> listaAux = new ArrayList<Carta>(cartas);
+    	int valorCarta = carta.getValor().getValor(), valorCartaDeLaLista;
+    	boolean insertado = false;
     	
     	try {
-    		if (cartas.size() == 5) {
+    		if (cartas.size() == 5)
         		throw new EManoLlena();
+    		
+        	// Vamos añadir las cartas de manera ordenada, por lo tanto.
+        	if(cartas.size() == 0) {
+        		// La lista está vacía añadimos la carta directamente.
+        		cartas.add(carta);
         	}
-        	else { // Vamos añadir las cartas de manera ordenada, por lo tanto.
-        		if(cartas.size() == 0) {
-        			// La lista está vacía añadimos la carta directamente.
-        			cartas.add(carta);
-        		}
-        		else {
-	        		while((i < Constantes.MAX_CARTAS_MANO) && (!encontrado)) {
-	        			valorCarta = carta.getValor().getValor(); // Nos da el entero de la carta.
-	        			valorCartaDeLaLista = cartas.get(i).getValor().getValor(); // nos da el valor de la pos i.
-	        			
-	        			// Si el valor de la carta es menor igual al valor del array
-	        			if(valorCarta <= valorCartaDeLaLista) {
-	        				encontrado = true;
-	        				
-	        				// Copiamos el valor de i a i+1 y el nuevo valor donde i
-	        				Carta cartaAuxiliar = cartas.get(i);
-	        				//Borramos el que estaba en esa posicion.
-	        				cartas.remove(i);
-	        				// Añadimos el nuestro y luego el auxiliar.
-	        				cartas.add(carta);
-	        				cartas.add(cartaAuxiliar);
-	        				
-	        			}
-	        			else
-	        			{
-	        				// Lo añades porque va el último, los anteriores han resultado ser menores que el nuevo valor.3
-	        				cartas.add(carta);
-	        			}
-	        			
-	        			i++;
+        	else {
+        		cartas.clear();
+	        	while(!listaAux.isEmpty()) {
+	        		valorCartaDeLaLista = listaAux.get(0).getValor().getValor(); // para el valor del primer elemento en la lista
+	        		// Si el valor de la carta a añadir es mayor que el de la carta en la primera pos de la lista (que esta ordenada)
+	        		if(valorCarta > valorCartaDeLaLista && !insertado) {
+	        			insertado = true;
+	        			cartas.add(carta);
 	        		}
-        		}
+	        		cartas.add(listaAux.get(0));
+	        		listaAux.remove(0);
+	        	}
+	        	if (!insertado) // si la carta es <= que todos los elementos de la lista no se habrá insertado
+	        		cartas.add(carta);
         	}
-    	}
-    	catch (EManoLlena e) {
+        } catch (EManoLlena e) {
     		System.out.println(e.getMessage());
     	}
     }
 
+    
     /**
      * Método para poder asignar listas enteras de cartas a la mano.
      *
@@ -134,6 +119,9 @@ public class Mano {
      */
     @Override
     public String toString() {
-        return "";
+    	StringBuilder strBuild = new StringBuilder();
+    	for (int i = 0; i < cartas.size(); i++)
+    		strBuild.append(cartas.get(i).toString());
+        return strBuild.toString();
     }
 }
