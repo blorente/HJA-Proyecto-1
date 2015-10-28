@@ -181,8 +181,10 @@ public class Main {
         	nfe.printStackTrace();
         } catch (IOException ioe) {
         	ioe.printStackTrace();
-        }
-    	long newtime = System.currentTimeMillis() - time;
+        } catch (Exception e) {
+			e.printStackTrace();
+		}
+		long newtime = System.currentTimeMillis() - time;
     	System.out.println(newtime);
     	System.out.println(manos);
 	}	

@@ -1,10 +1,10 @@
 /**
- * Clase estática (no puede ser instanciada) que contiene métodos
+ * Clase estï¿½tica (no puede ser instanciada) que contiene mï¿½todos
  * para comparar y analizar jugadas, manos, o listas de cartas.
  *
  * Para llamarla, Analizador.analizarMano();
  *
- * Las funciones deberían mantenerse puras (que no cambien el input)
+ * Las funciones deberï¿½an mantenerse puras (que no cambien el input)
  * por si luuego queremos meter threads.
  */
 
@@ -29,7 +29,7 @@ public final class Analizador {
     //-----------------------
 
     /**
-     * Constructor privado que permite que esta sea una clase estática.
+     * Constructor privado que permite que esta sea una clase estï¿½tica.
      */
     private Analizador() {
 
@@ -37,23 +37,23 @@ public final class Analizador {
 
 
     //-----------------------
-    // MÉTODOS PROPIOS
+    // Mï¿½TODOS PROPIOS
     //-----------------------
     
     
     
 
     /**
-     * Método que analiza la mano que le pasas, y devuelve una lusta de jugadas.
+     * Mï¿½todo que analiza la mano que le pasas, y devuelve una lusta de jugadas.
      * @param m Mano a analizar.
-     * @return lista con todas la s jugadas que tiene esa mano (OEASD, Parejas, tríos...)
+     * @return lista con todas la s jugadas que tiene esa mano (OEASD, Parejas, trï¿½os...)
      *
-     * Precondición: m tiene como máximo 5 cartas.
-     * Postcondición: La lista de retorno tiene la mejor mano como primer elemento
+     * Precondiciï¿½n: m tiene como mï¿½ximo 5 cartas.
+     * Postcondiciï¿½n: La lista de retorno tiene la mejor mano como primer elemento
      */
     public static List<JugadaValor> analizaMano(Mano m) {
     	
-    	//añadir boolean para proyectos escalera y color
+    	//aï¿½adir boolean para proyectos escalera y color
     	
     	List<JugadaValor> jugadas = new ArrayList<JugadaValor>() ;
     	List<Carta> cartas = m.getCartas();
@@ -104,7 +104,7 @@ public final class Analizador {
     		}
     	}
     	 
-    	//Comprobamos si hay proyectos y, en caso de haberlos los añadimos a List jugadas..
+    	//Comprobamos si hay proyectos y, en caso de haberlos los aï¿½adimos a List jugadas..
     	if (hayFlushDraw(cartas))
     		jugadas.add(new JugadaValor(E_Jugada_Tipo.FLUSH_DRAW));
     	if (hayGutShot(cartas))
@@ -116,7 +116,7 @@ public final class Analizador {
     }
 
     /**
-     * Método que compara dos manos, y devuelve un float diciendo cuál es la mejor
+     * Mï¿½todo que compara dos manos, y devuelve un float diciendo cuï¿½l es la mejor
      * @param m1
      * @param m2
      * @return Por ahora, devuelve [>0 si m1 > m2], [<0 si m1<m2], y [0 si m1=m2]
@@ -128,7 +128,7 @@ public final class Analizador {
     }
 
     /**
-     * Mismo métiodo que el anterior, pero en este caso compara dos listas de cartas.
+     * Mismo mï¿½tiodo que el anterior, pero en este caso compara dos listas de cartas.
      *
      * IMPORTANTE: Creo que para esto lo mejor es coger las cartas de 5 en 5,
      *              como dijo en clase, y compararlas usando comparaManos();
@@ -155,41 +155,74 @@ public final class Analizador {
     }
     
     /**
-     * Método que coge las posibles manos que se pueden formar entre las cartas del jugador
+     * Mï¿½todo que coge las posibles manos que se pueden formar entre las cartas del jugador
      * y las de la mesa, y devuelve una lista de jugadas que tiene en total el jugador.
      * @param j
      * @param mesa
      * @return
      */
-    public static List<I_Jugada> analizaJugador(JugadorHoldem j, List<Carta> mesa) {
+    public static List<I_Jugada> analizaJugador(JugadorHoldem j, List<Carta> mesa) throws Exception {
 
     	// combinaciones de las cartas del jugador con las cartas de la mesa
-    	List<Mano> combinaciones = null;
+    	List<Mano> combinaciones = new ArrayList<Mano>();
 
         if (mesa.size() > 3) {
             combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 1, mesa, 4));
         }
         combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 2, mesa, 3));
 
-    	// machacar siempre best hand (primero de la lista) e ir añadiendo draws
+    	// machacar siempre best hand (primero de la lista) e ir aï¿½adiendo draws
     	
     	// usando analizaMano (HECHO) y comparaJugadas (POR HACER)
     	
-        return null;
+        return new ArrayList<I_Jugada>();
     }
 
     private static List<Mano> combinarCartasDeListas(List<Carta> cartas1, int numCartas1,
-                                                     List<Carta> cartas2, int numCartas2) {
+                                                     List<Carta> cartas2, int numCartas2) throws Exception {
+		if (numCartas1 > cartas1.size() || numCartas2 > cartas2.size())
+			throw new Exception();
 
         List<Mano> manos = new ArrayList<Mano>();
 
         int totalCombinations = binomial(cartas1.size(), numCartas1) *
                                 binomial(cartas2.size(), numCartas2);
 
+		List<List<Carta>> combCartas1 = n_escoge_k(cartas1, numCartas1);
+		List<List<Carta>> combCartas2 = n_escoge_k(cartas2, numCartas2);
         return manos;
     }
 
-    /**
+	private static List<List<Carta>> n_escoge_k(List<Carta> cartas, int k) {
+		List<Carta[]> devolver = new ArrayList();
+
+		Carta[] mano = new Carta[k];
+
+		n_escoge_k(cartas, mano, k, 0, 0, devolver); //Llamada a la versiÃ³n recursiva de esta funciÃ³n
+
+		//return devolver;
+		return null;
+	}
+
+	private static void n_escoge_k(List<Carta> cartas, Carta[] mano, int k, int iteration, int curIndex, List<Carta[]> devolver) {
+
+		if (curIndex > cartas.size()) {
+			return;
+		}
+
+		if (iteration == k) {
+			devolver.add(mano.clone());
+			return;
+		}
+
+		for (int i = curIndex; i < cartas.size(); i++) {
+			mano[iteration] = cartas.get(i);
+			n_escoge_k(cartas, mano, k, iteration + 1, i + 1, devolver);
+		}
+
+	}
+
+	/**
      * @param n
      * @param k
      * @return (n choose k)
@@ -207,7 +240,7 @@ public final class Analizador {
     }
 
     /**
-     * Método que coge los jugadores con sus respectivas cartas y las cartas de la mesa, y
+     * Mï¿½todo que coge los jugadores con sus respectivas cartas y las cartas de la mesa, y
      * devuelve una lista de jugadores teniendo en cuenta su jugada, es decir, de mejor a peor.
      * @param list
      * @param mesa
@@ -520,7 +553,7 @@ public final class Analizador {
     private static boolean hayOESD(List<Carta> cartas){
     	int size = cartas.size() , index = 1, valorAnterior = cartas.get(0).getValor().getValor();
     	 
-    	//quitar casos de escalera esquina y añadir nuevo metodo
+    	//quitar casos de escalera esquina y aï¿½adir nuevo metodo
     	int nFallos = 1;	//numero de cartas para completar el proyecto
     	while( index < size ){
 			if(cartas.get(index).getValor().getValor() == valorAnterior - 1 )
