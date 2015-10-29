@@ -229,11 +229,9 @@ public final class Analizador {
         }
         combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 2, mesa, 3));
 
-    	// machacar siempre best hand (primero de la lista) e ir a�adiendo draws
-        Set<E_Jugada_Tipo> tiposDeJugadas = new HashSet<E_Jugada_Tipo>();
-        List<JugadaValor> jugadasDeMano = new ArrayList<JugadaValor>();
-
+    	List<JugadaValor> jugadasDeMano = new ArrayList<JugadaValor>();
         List<JugadaValor> jugadasTotales = new ArrayList<JugadaValor>();
+        HashSet<E_Jugada_Tipo> drawsMetidos = new HashSet<E_Jugada_Tipo>();
 
         for (Mano mano : combinaciones) {
             jugadasDeMano = analizaMano(mano);
@@ -241,18 +239,23 @@ public final class Analizador {
             for (JugadaValor jugada : jugadasDeMano) {
                 boolean insertado = false;
                 for (int z = 0; z < jugadasTotales.size(); z++) {
-                    if (jugada.getTipo() !=  E_Jugada_Tipo.FLUSH_DRAW ||
-                            jugada.getTipo() !=  E_Jugada_Tipo.GUTSHOT ||
+                    if (jugada.getTipo() !=  E_Jugada_Tipo.FLUSH_DRAW &&
+                            jugada.getTipo() !=  E_Jugada_Tipo.GUTSHOT &&
                             jugada.getTipo() !=  E_Jugada_Tipo.OESD) {
                         if (comparaJugadas(jugada, jugadasTotales.get(z)) > 1 ) {
                             jugadasTotales.set(z, jugada);
                         }
                         insertado = true;
+                    } else {
+                        if (!drawsMetidos.contains(jugada.getTipo())) {
+                            drawsMetidos.add(jugada.getTipo());
+                            jugadasTotales.add(jugada);
+                            insertado = true;
+                        }
                     }
                 }
                 if (!insertado) jugadasTotales.add(jugada);
             }
-
         }
 
         jugadasTotales.sort(new Comparator<JugadaValor>() {
