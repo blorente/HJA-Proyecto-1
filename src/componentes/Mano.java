@@ -97,7 +97,7 @@ public class Mano {
     		throw new EManoLlena();
     	}
     	for (Carta carta : cartas) {
-    		this.cartas.add(carta);
+    		this.anadirCarta(carta);
     	}
     }
 
@@ -129,4 +129,6 @@ public class Mano {
     		strBuild.append(cartas.get(i).toString());
         return strBuild.toString();
     }
+
+
 }
