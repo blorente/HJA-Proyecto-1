@@ -19,11 +19,7 @@ public class JugadaValor implements I_Jugada {
 	public JugadaValor(E_Jugada_Tipo tipo) {
 		this.tipo = tipo;
 	}
-	
-	public E_Jugada_Tipo getTipo() {
-		return tipo;
-	}
-	
+
 	public List<Carta> getCartasImportantes() {
 		return cartasImportantes;
 	}
@@ -50,5 +46,8 @@ public class JugadaValor implements I_Jugada {
 		}
 		return strBuild.toString();
 	}
-	   
+
+	public E_Jugada_Tipo getTipo() {
+		return tipo;
+	}
 }

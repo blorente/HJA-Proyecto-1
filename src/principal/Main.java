@@ -98,12 +98,12 @@ public class Main {
 						}
 						
 						//Analizar lo que tiene el jugador.
-						List<I_Jugada> jugadas = Analizador.analizaJugador(jugadorHoldem, mesa);
+						List<JugadaValor> jugadas = Analizador.analizaJugador(jugadorHoldem, mesa);
 						
 						//Imprimir en el archivo de salida la salida.
 						bw.write(line);
 						bw.newLine();
-						for (I_Jugada jugada : jugadas) {
+						for (JugadaValor jugada : jugadas) {
 							lineaSalida = " - " + jugada.toString();
 							bw.write(lineaSalida);
 					        bw.newLine();

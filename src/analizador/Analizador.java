@@ -10,9 +10,7 @@
 
 package analizador;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 
 import componentes.Carta;
 import componentes.I_Jugada;
@@ -42,6 +40,7 @@ public final class Analizador {
     //-----------------------
     
    
+
     /**
      * M�todo que analiza la mano que le pasas, y devuelve una lusta de jugadas.
      * @param m Mano a analizar.
@@ -217,7 +216,7 @@ public final class Analizador {
      * @param mesa
      * @return
      */
-    public static List<I_Jugada> analizaJugador(JugadorHoldem j, List<Carta> mesa) {
+    public static List<JugadaValor> analizaJugador(JugadorHoldem j, List<Carta> mesa) {
 
     	// combinaciones de las cartas del jugador con las cartas de la mesa
     	List<Mano> combinaciones = new ArrayList<Mano>();
@@ -231,12 +230,37 @@ public final class Analizador {
         combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 2, mesa, 3));
 
     	// machacar siempre best hand (primero de la lista) e ir a�adiendo draws
-    	
-    	// usando analizaMano (HECHO) y comparaJugadas (HECHO)
-    	
-        // no hace falta devolver, mejor hacer un setJugadas al jugador
-        
-        return new ArrayList<I_Jugada>();
+        Set<E_Jugada_Tipo> tiposDeJugadas = new HashSet<E_Jugada_Tipo>();
+        List<JugadaValor> jugadasDeMano = new ArrayList<JugadaValor>();
+
+        List<JugadaValor> jugadasTotales = new ArrayList<JugadaValor>();
+
+        for (Mano mano : combinaciones) {
+            jugadasDeMano = analizaMano(mano);
+
+            for (JugadaValor jugada : jugadasDeMano) {
+                boolean insertado = false;
+                for (int z = 0; z < jugadasTotales.size(); z++) {
+                    if (jugada.getTipo() ==  jugadasTotales.get(z).getTipo()) {
+                        if (comparaJugadas(jugada, jugadasTotales.get(z)) > 1 ) {
+                            jugadasTotales.set(z, jugada);
+                        }
+                        insertado = true;
+                    }
+                }
+                if (!insertado) jugadasTotales.add(jugada);
+            }
+
+        }
+
+        jugadasTotales.sort(new Comparator<JugadaValor>() {
+            @Override
+            public int compare(JugadaValor o1, JugadaValor o2) {
+                return comparaJugadas(o2, o1);
+            }
+        });
+
+        return jugadasTotales;
     }
 
     private static List<Mano> combinarCartasDeListas(List<Carta> cartas1, int numCartas1,
@@ -249,9 +273,6 @@ public final class Analizador {
 		*/
     	
         List<Mano> manos = new ArrayList<Mano>();
-
-        int totalCombinations = binomial(cartas1.size(), numCartas1) *
-                                binomial(cartas2.size(), numCartas2);
 
 		List<List<Carta>> combCartas1 = n_escoge_k(cartas1, numCartas1);
 		List<List<Carta>> combCartas2 = n_escoge_k(cartas2, numCartas2);
@@ -303,12 +324,6 @@ public final class Analizador {
      *
      * NO TOCAR
      *
-     * @param cartas
-     * @param mano
-     * @param k
-     * @param iteration
-     * @param curIndex
-     * @param devolver
      */
 
 	private static void n_escoge_k(List<Carta> cartas, List<Carta> mano, int k, int iteration, int curIndex, List<List<Carta>> devolver) {
