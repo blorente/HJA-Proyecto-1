@@ -241,7 +241,9 @@ public final class Analizador {
             for (JugadaValor jugada : jugadasDeMano) {
                 boolean insertado = false;
                 for (int z = 0; z < jugadasTotales.size(); z++) {
-                    if (jugada.getTipo() ==  jugadasTotales.get(z).getTipo()) {
+                    if (jugada.getTipo() !=  E_Jugada_Tipo.FLUSH_DRAW ||
+                            jugada.getTipo() !=  E_Jugada_Tipo.GUTSHOT ||
+                            jugada.getTipo() !=  E_Jugada_Tipo.OESD) {
                         if (comparaJugadas(jugada, jugadasTotales.get(z)) > 1 ) {
                             jugadasTotales.set(z, jugada);
                         }
