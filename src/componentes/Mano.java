@@ -46,11 +46,15 @@ public class Mano {
      * @throws EManoLlena
      */
     public void anadirCarta(Carta carta) throws EManoLlena {
+    	if (cartas.size() == 5)
+    		throw new EManoLlena();
     	
+    	cartas.add(carta);
+    	
+    	/*
     	ArrayList<Carta> listaAux = new ArrayList<Carta>(cartas);
     	int valorCarta = carta.getValor().getValor(), valorCartaDeLaLista;
     	boolean insertado = false;
-    	
     	try {
     		if (cartas.size() == 5)
         		throw new EManoLlena();
@@ -78,6 +82,7 @@ public class Mano {
         } catch (EManoLlena e) {
     		System.out.println(e.getMessage());
     	}
+    	*/
     }
 
     

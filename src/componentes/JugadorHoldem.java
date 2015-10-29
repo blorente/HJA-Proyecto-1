@@ -23,14 +23,14 @@ public class JugadorHoldem implements I_Jugador {
     //-----------------------
 
     /**
-     * Lista de (máximo) 5 cartas
+     * Lista de (máximo) 2 cartas
      */
     private List<Carta> cartas;
 
     /**
      * Lista de jugadas que tiene la mano, ordenadas de mejor a peor.
      */
-    private List<I_Jugada> jugadas;
+    private List<JugadaValor> jugadas;
     
     /**
      * ID del jugador
@@ -50,7 +50,7 @@ public class JugadorHoldem implements I_Jugador {
 
     /**
      * Método para añadir una carta a la mano.
-     * Si la mano contiene ya 5 cartas, deberá lanzar una excepción de mano llena.
+     * Si la mano contiene ya 2 cartas, deberá lanzar una excepción de mano llena.
      *
      * @param carta: Carta para añadir.
      * @throws EManoLlena
@@ -91,22 +91,17 @@ public class JugadorHoldem implements I_Jugador {
     // GETTERS Y SETTERS
     //-----------------------
 
-    @Override
     public List<Carta> getCartas() {
         return cartas;
     }
 
-    @Override
-    public List<I_Jugada> getJugadas() {
+    public List<JugadaValor> getJugadas() {
         return jugadas;
     }
-    
-    @Override
     public String getId() {
     	return id;
     }
     
-    @Override
     public void setId(String id) {
     	this.id = id;
     }

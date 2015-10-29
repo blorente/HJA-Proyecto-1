@@ -18,7 +18,7 @@ public interface I_Jugador {
 
     List<Carta> getCartas();
 
-    List<I_Jugada> getJugadas();
+    List<JugadaValor> getJugadas();
 
     String getId();
 

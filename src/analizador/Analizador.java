@@ -11,12 +11,14 @@
 package analizador;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import componentes.Carta;
 import componentes.I_Jugada;
 import componentes.JugadaValor;
 import componentes.JugadorHoldem;
+import componentes.JugadorOmaha;
 import componentes.Mano;
 import enumerados.E_Carta_Palo;
 import enumerados.E_Carta_Valor;
@@ -35,14 +37,11 @@ public final class Analizador {
 
     }
 
-
     //-----------------------
     // M�TODOS PROPIOS
     //-----------------------
     
-    
-    
-
+   
     /**
      * M�todo que analiza la mano que le pasas, y devuelve una lusta de jugadas.
      * @param m Mano a analizar.
@@ -52,13 +51,23 @@ public final class Analizador {
      * Postcondici�n: La lista de retorno tiene la mejor mano como primer elemento
      */
     public static List<JugadaValor> analizaMano(Mano m) {
-    	
-    	//a�adir boolean para proyectos escalera y color
-    	
+    	    	
     	List<JugadaValor> jugadas = new ArrayList<JugadaValor>() ;
-    	List<Carta> cartas = m.getCartas();
     	List<Carta> cartaSolucion = new ArrayList<Carta>(); //necesitamos List para el caso de Full y Dobles
+    	List<Carta> cartas = m.getCartas();
     	
+    	// Ordenar las cartas de mayor a menor por su valor
+    	class ComparadorCarta implements Comparator<Carta> {
+			public int compare(Carta c1, Carta c2) {
+				if (c1.getValor().getValor() > c2.getValor().getValor())
+					return 1;
+				else if (c1.getValor().getValor() < c2.getValor().getValor())
+					return -1;
+				else
+					return 0;
+			}
+		}
+    	cartas.sort(new ComparadorCarta());
     	
     	if (hayEscalera(cartas) != null && hayColor(cartas) != null){
     		cartaSolucion.add(hayEscalera(cartas));
@@ -123,7 +132,6 @@ public final class Analizador {
      */
     public static float comparaManos(Mano m1, Mano m2) {
     	
-    	// 1 mirar ranking
         return 0.0f;
     }
 
@@ -137,21 +145,46 @@ public final class Analizador {
      * @param l2
      * @return el mismo que comparaManos()
      */
-    public static float comparaListas (List<Carta> l1, List<Carta> l2) {
+    public static float comparaListas(List<Carta> l1, List<Carta> l2) {
         return 0.0f;
     }
-
     
-    
-    public static float comparaJugadas (I_Jugada jugada1, I_Jugada jugada2) {
+    /**
+     * 
+     * @param jugada1
+     * @param jugada2
+     * @return devuelve [1 si jugada1 > jugada2], [-1 si jugada1 < jugada2], y [0 son jugada1 = jugada2]
+     */
+    private static int comparaJugadas(JugadaValor jugada1, JugadaValor jugada2) {
+    	if (jugada1.getTipo().getRanking() > jugada2.getTipo().getRanking())
+    		return 1;
     	
-    	// comparar ranking
+    	else if (jugada1.getTipo().getRanking() < jugada2.getTipo().getRanking())
+    		return -1;
     	
-    	// en caso de ranking igual comparar cartasImportantes
-    	
-    	// en caso de cartasImportantes iguales MAGIA
-    	
-        return 0.0f;
+    	else { // mismo tipo de jugada
+    		List<Carta> cartasImp1 = jugada1.getCartasImportantes();
+    		List<Carta> cartasImp2 = jugada2.getCartasImportantes();
+    		for (int i = 0; i < cartasImp1.size(); i++) {
+    			if (cartasImp1.get(i).getValor().getValor() > cartasImp2.get(i).getValor().getValor())
+    				return 1;
+    			if (cartasImp1.get(i).getValor().getValor() < cartasImp2.get(i).getValor().getValor())
+    				return -1;
+    		}
+    		
+    		// llegados a este punto tenemos que mirar los kickers
+    		List<Carta> cartasKicker1 = jugada1.getMano().getCartas();
+    		List<Carta> cartasKicker2 = jugada2.getMano().getCartas();
+    		for (int i = 0; i < cartasKicker1.size(); i++) {
+    			if (cartasKicker1.get(i).getValor().getValor() > cartasKicker2.get(i).getValor().getValor())
+    				return 1;
+    			if (cartasKicker1.get(i).getValor().getValor() < cartasKicker2.get(i).getValor().getValor())
+    				return -1;
+    		}
+    		
+    		// las jugadas son igual de buenas
+    		return 0;
+    	}
     }
     
     /**
@@ -161,28 +194,60 @@ public final class Analizador {
      * @param mesa
      * @return
      */
-    public static List<I_Jugada> analizaJugador(JugadorHoldem j, List<Carta> mesa) throws Exception {
+    public static List<I_Jugada> analizaJugadorOmaha(JugadorOmaha j, List<Carta> mesa) {
 
     	// combinaciones de las cartas del jugador con las cartas de la mesa
     	List<Mano> combinaciones = new ArrayList<Mano>();
 
-        if (mesa.size() > 3) {
+        combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 2, mesa, 3));
+
+    	// machacar siempre best hand (primero de la lista) e ir a�adiendo draws
+    	
+    	// usando analizaMano (HECHO) y comparaJugadas (HECHO)
+    	
+        // no hace falta devolver, mejor hacer un setJugadas al jugador
+        
+        return new ArrayList<I_Jugada>();
+    }
+    
+    /**
+     * M�todo que coge las posibles manos que se pueden formar entre las cartas del jugador
+     * y las de la mesa, y devuelve una lista de jugadas que tiene en total el jugador.
+     * @param j
+     * @param mesa
+     * @return
+     */
+    public static List<I_Jugada> analizaJugador(JugadorHoldem j, List<Carta> mesa) {
+
+    	// combinaciones de las cartas del jugador con las cartas de la mesa
+    	List<Mano> combinaciones = new ArrayList<Mano>();
+
+		if (mesa.size() >= 5) {
+			combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 0, mesa, 5));
+		}
+		if (mesa.size() >= 4) {
             combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 1, mesa, 4));
         }
         combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 2, mesa, 3));
 
     	// machacar siempre best hand (primero de la lista) e ir a�adiendo draws
     	
-    	// usando analizaMano (HECHO) y comparaJugadas (POR HACER)
+    	// usando analizaMano (HECHO) y comparaJugadas (HECHO)
     	
+        // no hace falta devolver, mejor hacer un setJugadas al jugador
+        
         return new ArrayList<I_Jugada>();
     }
 
     private static List<Mano> combinarCartasDeListas(List<Carta> cartas1, int numCartas1,
-                                                     List<Carta> cartas2, int numCartas2) throws Exception {
-		if (numCartas1 > cartas1.size() || numCartas2 > cartas2.size())
+                                                     List<Carta> cartas2, int numCartas2) {
+    	
+    	/**
+    	 EN TEORIA LOS DATOS ESTAN BIEN
+    	  if (numCartas1 > cartas1.size() || numCartas2 > cartas2.size())
 			throw new Exception();
-
+		*/
+    	
         List<Mano> manos = new ArrayList<Mano>();
 
         int totalCombinations = binomial(cartas1.size(), numCartas1) *
@@ -190,33 +255,79 @@ public final class Analizador {
 
 		List<List<Carta>> combCartas1 = n_escoge_k(cartas1, numCartas1);
 		List<List<Carta>> combCartas2 = n_escoge_k(cartas2, numCartas2);
+
+        List<List<Carta>> todasLasCombinaciones = productoCartesiano(combCartas1, combCartas2);
+
+        for (List<Carta> lista: todasLasCombinaciones) {
+            Mano mano = new Mano();
+            mano.llenarMano(lista);
+            manos.add(mano);
+        }
+
         return manos;
     }
 
-	private static List<List<Carta>> n_escoge_k(List<Carta> cartas, int k) {
-		List<Carta[]> devolver = new ArrayList();
+    private static List<List<Carta>> productoCartesiano(List<List<Carta>> combCartas1, List<List<Carta>> combCartas2) {
 
-		Carta[] mano = new Carta[k];
+        List<List<Carta>> prod = new ArrayList<List<Carta>>();
+
+        for (int i = 0; i < combCartas1.size(); i++) {
+            for (int j = 0; j < combCartas2.size(); j++) {
+                ArrayList<Carta> lista = new ArrayList<Carta>(combCartas1.get(i));
+                lista.addAll(new ArrayList<Carta>(combCartas2.get(j)));
+                prod.add(lista);
+            }
+        }
+
+        return prod;
+    }
+
+    /**
+     * Función para sacar todas las combinaciones posibles de una lista, sin repetición.
+     * @param cartas Lista de cartas.
+     * @param k Longitud de las selecciones.
+     * @return
+     */
+	private static List<List<Carta>> n_escoge_k(List<Carta> cartas, int k) {
+		List<List<Carta>> devolver = new ArrayList();
+
+		List<Carta> mano = new ArrayList<Carta>();
 
 		n_escoge_k(cartas, mano, k, 0, 0, devolver); //Llamada a la versión recursiva de esta función
 
-		//return devolver;
-		return null;
-	}
+		return devolver;
+    }
 
-	private static void n_escoge_k(List<Carta> cartas, Carta[] mano, int k, int iteration, int curIndex, List<Carta[]> devolver) {
+    /**
+     * Función recursiva auxiliar, que se llama automáticamente desde n_escoge_k.
+     *
+     * NO TOCAR
+     *
+     * @param cartas
+     * @param mano
+     * @param k
+     * @param iteration
+     * @param curIndex
+     * @param devolver
+     */
+
+	private static void n_escoge_k(List<Carta> cartas, List<Carta> mano, int k, int iteration, int curIndex, List<List<Carta>> devolver) {
 
 		if (curIndex > cartas.size()) {
 			return;
 		}
 
 		if (iteration == k) {
-			devolver.add(mano.clone());
+			devolver.add(new ArrayList<Carta>(mano));
 			return;
 		}
 
 		for (int i = curIndex; i < cartas.size(); i++) {
-			mano[iteration] = cartas.get(i);
+            if (mano.size() <= iteration) {
+                mano.add(cartas.get(i));
+            } else {
+                mano.set(iteration, cartas.get(i));
+            }
 			n_escoge_k(cartas, mano, k, iteration + 1, i + 1, devolver);
 		}
 
@@ -247,9 +358,16 @@ public final class Analizador {
      * @return
      */
     public static List<JugadorHoldem> comparaJugadores(List<JugadorHoldem> list, List<Carta> mesa) {
+    	for (JugadorHoldem jug : list)
+    		Analizador.analizaJugador(jug, mesa);
     	
-    	
-        return null;
+    	class ComparadorJugador implements Comparator<JugadorHoldem> {
+			public int compare(JugadorHoldem j1, JugadorHoldem j2) {
+				return comparaJugadas(j1.getJugadas().get(0), j2.getJugadas().get(0));
+			}
+		}
+    	list.sort(new ComparadorJugador());
+        return list;
     } 
     
     private static Carta hayEscalera(List<Carta> cartas){

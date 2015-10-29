@@ -14,7 +14,7 @@ public class E_Jugada_Tipo {
         this.ranking = ranking;
     }
     
-    private int getRanking() {
+    public int getRanking() {
     	return ranking;
     }
 

@@ -15,6 +15,7 @@ import componentes.Carta;
 import componentes.I_Jugada;
 import componentes.JugadaValor;
 import componentes.JugadorHoldem;
+import componentes.JugadorOmaha;
 import componentes.Mano;
 import entrada_salida_datos.Parser;
 import excepciones.ErrorNumApartado;
@@ -26,7 +27,6 @@ import excepciones.ErrorTamLinea;
 public class Main {
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		
 		long time = System.currentTimeMillis(), manos = 0;
     	try {
     		if (args.length != 3) {
@@ -106,7 +106,7 @@ public class Main {
 						for (I_Jugada jugada : jugadas) {
 							lineaSalida = " - " + jugada.toString();
 							bw.write(lineaSalida);
-					           bw.newLine();
+					        bw.newLine();
 						}
 						bw.newLine();
 					}
@@ -147,13 +147,49 @@ public class Main {
 						bw.write(line);
 						bw.newLine();
 						for (JugadorHoldem jugadorHoldem : jugadoresOrdenados) {
-							List<I_Jugada> jugadas = jugadorHoldem.getJugadas();
+							List<JugadaValor> jugadas = jugadorHoldem.getJugadas();
 							lineaSalida = jugadorHoldem.getId() + ": " + jugadas.get(0).toString();
 							bw.write(lineaSalida);
-					          bw.newLine();
+					        bw.newLine();
 						}
                         bw.newLine();
                     }
+					break;
+					
+				case 4:
+					while ((line = br.readLine())!= null) {
+                        datosLinea = line.split(";");
+						int numCartasComunes = Integer.parseInt(datosLinea[1]);
+						if (line.length() != (numCartasComunes*2 + 11))
+							throw new ErrorTamLinea();
+						
+						//Crear una instancia de Jugador y llenar con sus hole cards
+						JugadorOmaha jugadorOmaha = new JugadorOmaha();
+						for (int i = 0; i < 4; i++) {
+                        	Carta carta = Parser.parseaCarta(datosLinea[0].substring(2*i, 2*i+2));
+                        	jugadorOmaha.anadirCarta(carta);
+                        }
+						
+						//Crear una instancia de Mesa y llenar con las cartas comunitarias
+						ArrayList<Carta> mesa = new ArrayList<Carta>();
+						for (int i = 0; i < numCartasComunes; i++) {
+                        	Carta carta = Parser.parseaCarta(datosLinea[2].substring(2*i, 2*i+2));
+                        	mesa.add(carta);
+						}
+						
+						//Analizar lo que tiene el jugador.
+						List<I_Jugada> jugadas = Analizador.analizaJugadorOmaha(jugadorOmaha, mesa);
+						
+						//Imprimir en el archivo de salida la salida.
+						bw.write(line);
+						bw.newLine();
+						for (I_Jugada jugada : jugadas) {
+							lineaSalida = " - " + jugada.toString();
+							bw.write(lineaSalida);
+					        bw.newLine();
+						}
+						bw.newLine();
+					}
 					break;
 					
 				default:
