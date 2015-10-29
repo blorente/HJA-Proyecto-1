@@ -194,9 +194,30 @@ public final class Analizador {
 		List<List<Carta>> combCartas1 = n_escoge_k(cartas1, numCartas1);
 		List<List<Carta>> combCartas2 = n_escoge_k(cartas2, numCartas2);
 
+        List<List<Carta>> todasLasCombinaciones = productoCartesiano(combCartas1, combCartas2);
 
+        for (List<Carta> lista: todasLasCombinaciones) {
+            Mano mano = new Mano();
+            mano.llenarMano(lista);
+            manos.add(mano);
+        }
 
         return manos;
+    }
+
+    private static List<List<Carta>> productoCartesiano(List<List<Carta>> combCartas1, List<List<Carta>> combCartas2) {
+
+        List<List<Carta>> prod = new ArrayList<List<Carta>>();
+
+        for (int i = 0; i < combCartas1.size(); i++) {
+            for (int j = 0; j < combCartas2.size(); j++) {
+                ArrayList<Carta> lista = new ArrayList<Carta>(combCartas1.get(i));
+                lista.addAll(new ArrayList<Carta>(combCartas2.get(j)));
+                prod.add(lista);
+            }
+        }
+
+        return prod;
     }
 
     /**
