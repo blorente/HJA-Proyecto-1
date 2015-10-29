@@ -12,6 +12,7 @@ package componentes;
 import enumerados.E_Carta_Palo;
 import enumerados.E_Carta_Valor;
 
+
 public class Carta {
 
     private E_Carta_Valor valor;
@@ -36,6 +37,5 @@ public class Carta {
     	builder.append(this.palo);
 		return builder.toString();
     }
-
 
 }

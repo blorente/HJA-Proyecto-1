@@ -92,7 +92,7 @@ public class Mano {
     		throw new EManoLlena();
     	}
     	for (Carta carta : cartas) {
-    		this.cartas.add(carta);
+    		this.anadirCarta(carta);
     	}
     }
 
