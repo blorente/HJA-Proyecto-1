@@ -124,4 +124,6 @@ public class Mano {
     		strBuild.append(cartas.get(i).toString());
         return strBuild.toString();
     }
+
+
 }

@@ -36,4 +36,6 @@ public class Carta {
     	builder.append(this.palo);
 		return builder.toString();
     }
+
+
 }

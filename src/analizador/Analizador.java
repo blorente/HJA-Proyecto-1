@@ -166,7 +166,10 @@ public final class Analizador {
     	// combinaciones de las cartas del jugador con las cartas de la mesa
     	List<Mano> combinaciones = new ArrayList<Mano>();
 
-        if (mesa.size() > 3) {
+		if (mesa.size() >= 5) {
+			combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 0, mesa, 5));
+		}
+		if (mesa.size() >= 4) {
             combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 1, mesa, 4));
         }
         combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 2, mesa, 3));
@@ -190,33 +193,58 @@ public final class Analizador {
 
 		List<List<Carta>> combCartas1 = n_escoge_k(cartas1, numCartas1);
 		List<List<Carta>> combCartas2 = n_escoge_k(cartas2, numCartas2);
+
+
+
         return manos;
     }
 
+    /**
+     * Función para sacar todas las combinaciones posibles de una lista, sin repetición.
+     * @param cartas Lista de cartas.
+     * @param k Longitud de las selecciones.
+     * @return
+     */
 	private static List<List<Carta>> n_escoge_k(List<Carta> cartas, int k) {
-		List<Carta[]> devolver = new ArrayList();
+		List<List<Carta>> devolver = new ArrayList();
 
-		Carta[] mano = new Carta[k];
+		List<Carta> mano = new ArrayList<Carta>();
 
 		n_escoge_k(cartas, mano, k, 0, 0, devolver); //Llamada a la versión recursiva de esta función
 
-		//return devolver;
-		return null;
-	}
+		return devolver;
+    }
 
-	private static void n_escoge_k(List<Carta> cartas, Carta[] mano, int k, int iteration, int curIndex, List<Carta[]> devolver) {
+    /**
+     * Función recursiva auxiliar, que se llama automáticamente desde n_escoge_k.
+     *
+     * NO TOCAR
+     *
+     * @param cartas
+     * @param mano
+     * @param k
+     * @param iteration
+     * @param curIndex
+     * @param devolver
+     */
+
+	private static void n_escoge_k(List<Carta> cartas, List<Carta> mano, int k, int iteration, int curIndex, List<List<Carta>> devolver) {
 
 		if (curIndex > cartas.size()) {
 			return;
 		}
 
 		if (iteration == k) {
-			devolver.add(mano.clone());
+			devolver.add(new ArrayList<Carta>(mano));
 			return;
 		}
 
 		for (int i = curIndex; i < cartas.size(); i++) {
-			mano[iteration] = cartas.get(i);
+            if (mano.size() <= iteration) {
+                mano.add(cartas.get(i));
+            } else {
+                mano.set(iteration, cartas.get(i));
+            }
 			n_escoge_k(cartas, mano, k, iteration + 1, i + 1, devolver);
 		}
 
