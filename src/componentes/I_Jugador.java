@@ -18,8 +18,6 @@ public interface I_Jugador {
 
     List<Carta> getCartas();
 
-    List<JugadaValor> getJugadas();
-
     String getId();
 
     void setId(String id);

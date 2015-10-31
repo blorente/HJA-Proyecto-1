@@ -26,7 +26,7 @@ public class E_Carta_Valor {
         return this.nombre;
     }
 
-    public static final E_Carta_Valor A     = new E_Carta_Valor(1, "A");
+    public static final E_Carta_Valor A     = new E_Carta_Valor(14, "A");
     public static final E_Carta_Valor K     = new E_Carta_Valor(13, "K");
     public static final E_Carta_Valor Q     = new E_Carta_Valor(12, "Q");
     public static final E_Carta_Valor J     = new E_Carta_Valor(11, "J");

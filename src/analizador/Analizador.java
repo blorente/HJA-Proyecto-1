@@ -13,7 +13,6 @@ package analizador;
 import java.util.*;
 
 import componentes.Carta;
-import componentes.I_Jugada;
 import componentes.JugadaValor;
 import componentes.JugadorHoldem;
 import componentes.JugadorOmaha;
@@ -49,9 +48,9 @@ public final class Analizador {
      * Precondiciï¿½n: m tiene como mï¿½ximo 5 cartas.
      * Postcondiciï¿½n: La lista de retorno tiene la mejor mano como primer elemento
      */
-    public static List<JugadaValor> analizaMano(Mano m) {
+    public static JugadaValor analizaMano(Mano m) {
     	    	
-    	List<JugadaValor> jugadas = new ArrayList<JugadaValor>() ;
+    	JugadaValor jugada;
     	List<Carta> cartaSolucion = new ArrayList<Carta>(); //necesitamos List para el caso de Full y Dobles
     	List<Carta> cartas = m.getCartas();
     	
@@ -59,9 +58,9 @@ public final class Analizador {
     	class ComparadorCarta implements Comparator<Carta> {
 			public int compare(Carta c1, Carta c2) {
 				if (c1.getValor().getValor() > c2.getValor().getValor())
-					return 1;
-				else if (c1.getValor().getValor() < c2.getValor().getValor())
 					return -1;
+				else if (c1.getValor().getValor() < c2.getValor().getValor())
+					return 1;
 				else
 					return 0;
 			}
@@ -70,57 +69,55 @@ public final class Analizador {
     	
     	if (hayEscalera(cartas) != null && hayColor(cartas) != null){
     		cartaSolucion.add(hayEscalera(cartas));
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.STRAIGHT_FLUSH, cartaSolucion, m));
+    		jugada = new JugadaValor(E_Jugada_Tipo.STRAIGHT_FLUSH, cartaSolucion, m);
     	}
     	else if (hayPoker(cartas) != null){
     		cartaSolucion.add(hayPoker(cartas));
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.FOUR_OF_A_KIND, cartaSolucion, m));
+    		jugada = new JugadaValor(E_Jugada_Tipo.FOUR_OF_A_KIND, cartaSolucion, m);
     	}
     	else if (hayTrio(cartas) != null && hayPareja(cartas) != null){  //hay full
     		cartaSolucion.add(hayTrio(cartas));
     		cartaSolucion.add(hayPareja(cartas));
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.FULL_HOUSE, cartaSolucion, m));
+    		jugada = new JugadaValor(E_Jugada_Tipo.FULL_HOUSE, cartaSolucion, m);
     	}
     	else if (hayColor(cartas) != null){
     		cartaSolucion.add(hayColor(cartas));
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.FLUSH, cartaSolucion, m));
+    		jugada = new JugadaValor(E_Jugada_Tipo.FLUSH, cartaSolucion, m);
     	}
     	else if (hayEscalera(cartas) != null){
     		cartaSolucion.add(hayEscalera(cartas));
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.STRAIGHT, cartaSolucion, m));
+    		jugada = new JugadaValor(E_Jugada_Tipo.STRAIGHT, cartaSolucion, m);
     	}
     	else if (hayTrio(cartas) != null){
     		cartaSolucion.add(hayTrio(cartas));
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.THREE_OF_A_KIND, cartaSolucion, m));
+    		jugada = new JugadaValor(E_Jugada_Tipo.THREE_OF_A_KIND, cartaSolucion, m);
     	}
     	else if (hayDobles(cartas) != null){
     		cartaSolucion = hayDobles(cartas);    		
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.TWO_PAIR, cartaSolucion, m));
+    		jugada = new JugadaValor(E_Jugada_Tipo.TWO_PAIR, cartaSolucion, m);
     	}
     	else if (hayPareja(cartas) != null){
     		cartaSolucion.add(hayPareja(cartas));
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.PAIR, cartaSolucion, m));
+    		jugada = new JugadaValor(E_Jugada_Tipo.PAIR, cartaSolucion, m);
     	}
     	else {
     		if(cartas.get(cartas.size()-1).getValor() == E_Carta_Valor.A){
     			cartaSolucion.add(cartas.get(cartas.size()-1));
-    			jugadas.add(new JugadaValor(E_Jugada_Tipo.HIGH_CARD, cartaSolucion, m));
+    			jugada = new JugadaValor(E_Jugada_Tipo.HIGH_CARD, cartaSolucion, m);
     		}
     		else{
     			cartaSolucion.add(cartas.get(0));
-    			jugadas.add(new JugadaValor(E_Jugada_Tipo.HIGH_CARD, cartaSolucion, m));
+    			jugada = new JugadaValor(E_Jugada_Tipo.HIGH_CARD, cartaSolucion, m);
     		}
     	}
     	 
-    	//Comprobamos si hay proyectos y, en caso de haberlos los aï¿½adimos a List jugadas..
-    	if (hayFlushDraw(cartas))
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.FLUSH_DRAW));
-    	if (hayGutShot(cartas))
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.GUTSHOT));
-    	if (hayOESD(cartas))
-    		jugadas.add(new JugadaValor(E_Jugada_Tipo.OESD));
+    	//Comprobamos si hay proyectos y, en caso de haberlos los marcamos en la jugada..
+    	jugada.setFlushDraw(hayFlushDraw(cartas));
+    	jugada.setGutShot(hayGutShot(cartas));
+    	jugada.setOESD(hayOESD(cartas));
+    	jugada.setStraightDraw(hayStraightDraw(cartas));
     	
-    	return jugadas;
+    	return jugada;
     }
 
     /**
@@ -155,10 +152,13 @@ public final class Analizador {
      * @return devuelve [1 si jugada1 > jugada2], [-1 si jugada1 < jugada2], y [0 son jugada1 = jugada2]
      */
     private static int comparaJugadas(JugadaValor jugada1, JugadaValor jugada2) {
-    	if (jugada1.getTipo().getRanking() > jugada2.getTipo().getRanking())
+    	//System.out.println(jugada1.toString());
+    	int rankJug1 = jugada1.getTipo().getRanking();
+    	int rankJug2 = jugada2.getTipo().getRanking();
+    	if (rankJug1 > rankJug2)
     		return 1;
     	
-    	else if (jugada1.getTipo().getRanking() < jugada2.getTipo().getRanking())
+    	else if (rankJug1 < rankJug2)
     		return -1;
     	
     	else { // mismo tipo de jugada
@@ -193,20 +193,29 @@ public final class Analizador {
      * @param mesa
      * @return
      */
-    public static List<I_Jugada> analizaJugadorOmaha(JugadorOmaha j, List<Carta> mesa) {
-
-    	// combinaciones de las cartas del jugador con las cartas de la mesa
+    public static JugadaValor analizaJugadorOmaha(JugadorOmaha j, List<Carta> mesa) {
+    	
     	List<Mano> combinaciones = new ArrayList<Mano>();
 
         combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 2, mesa, 3));
 
-    	// machacar siempre best hand (primero de la lista) e ir aï¿½adiendo draws
-    	
-    	// usando analizaMano (HECHO) y comparaJugadas (HECHO)
-    	
-        // no hace falta devolver, mejor hacer un setJugadas al jugador
-        
-        return new ArrayList<I_Jugada>();
+    	JugadaValor jugada, mejorJugada = new JugadaValor(E_Jugada_Tipo.NADA, null, null), jugadaAux;
+
+        for (Mano mano : combinaciones) {
+            jugada = analizaMano(mano);
+            if (comparaJugadas(jugada, mejorJugada) == 1) {
+            	jugadaAux = mejorJugada;
+            	mejorJugada = jugada;
+            	if (!mejorJugada.getFlushDraw())
+            		mejorJugada.setFlushDraw(jugadaAux.getFlushDraw());
+            	if (!mejorJugada.getGutShot())
+            		mejorJugada.setGutShot(jugadaAux.getGutShot());
+            	if (!jugada.getOESD())
+            		mejorJugada.setOESD(jugadaAux.getOESD());
+            }
+        }
+        j.setJugada(mejorJugada);
+        return mejorJugada;
     }
     
     /**
@@ -216,9 +225,8 @@ public final class Analizador {
      * @param mesa
      * @return
      */
-    public static List<JugadaValor> analizaJugador(JugadorHoldem j, List<Carta> mesa) {
-
-    	// combinaciones de las cartas del jugador con las cartas de la mesa
+    public static JugadaValor analizaJugador(JugadorHoldem j, List<Carta> mesa) {
+    	
     	List<Mano> combinaciones = new ArrayList<Mano>();
 
 		if (mesa.size() >= 5) {
@@ -229,53 +237,27 @@ public final class Analizador {
         }
         combinaciones.addAll(combinarCartasDeListas(j.getCartas(), 2, mesa, 3));
 
-    	List<JugadaValor> jugadasDeMano = new ArrayList<JugadaValor>();
-        List<JugadaValor> jugadasTotales = new ArrayList<JugadaValor>();
-        HashSet<E_Jugada_Tipo> drawsMetidos = new HashSet<E_Jugada_Tipo>();
+    	JugadaValor jugada, mejorJugada = new JugadaValor(E_Jugada_Tipo.NADA, null, null), jugadaAux;
 
         for (Mano mano : combinaciones) {
-            jugadasDeMano = analizaMano(mano);
-
-            for (JugadaValor jugada : jugadasDeMano) {
-                boolean insertado = false;
-                for (int z = 0; z < jugadasTotales.size(); z++) {
-                    if (jugada.getTipo() !=  E_Jugada_Tipo.FLUSH_DRAW &&
-                            jugada.getTipo() !=  E_Jugada_Tipo.GUTSHOT &&
-                            jugada.getTipo() !=  E_Jugada_Tipo.OESD) {
-                        if (comparaJugadas(jugada, jugadasTotales.get(z)) > 1 ) {
-                            jugadasTotales.set(z, jugada);
-                        }
-                        insertado = true;
-                    } else {
-                        if (!drawsMetidos.contains(jugada.getTipo())) {
-                            drawsMetidos.add(jugada.getTipo());
-                            jugadasTotales.add(jugada);
-                            insertado = true;
-                        }
-                    }
-                }
-                if (!insertado) jugadasTotales.add(jugada);
+            jugada = analizaMano(mano);
+            if (comparaJugadas(jugada, mejorJugada) == 1) {
+            	jugadaAux = mejorJugada;
+            	mejorJugada = jugada;
+            	if (!mejorJugada.getFlushDraw())
+            		mejorJugada.setFlushDraw(jugadaAux.getFlushDraw());
+            	if (!mejorJugada.getGutShot())
+            		mejorJugada.setGutShot(jugadaAux.getGutShot());
+            	if (!jugada.getOESD())
+            		mejorJugada.setOESD(jugadaAux.getOESD());
             }
         }
-
-        jugadasTotales.sort(new Comparator<JugadaValor>() {
-            @Override
-            public int compare(JugadaValor o1, JugadaValor o2) {
-                return comparaJugadas(o2, o1);
-            }
-        });
-
-        return jugadasTotales;
+        j.setJugada(mejorJugada);
+        return mejorJugada;
     }
 
     private static List<Mano> combinarCartasDeListas(List<Carta> cartas1, int numCartas1,
                                                      List<Carta> cartas2, int numCartas2) {
-    	
-    	/**
-    	 EN TEORIA LOS DATOS ESTAN BIEN
-    	  if (numCartas1 > cartas1.size() || numCartas2 > cartas2.size())
-			throw new Exception();
-		*/
     	
         List<Mano> manos = new ArrayList<Mano>();
 
@@ -315,7 +297,7 @@ public final class Analizador {
      * @return
      */
 	private static List<List<Carta>> n_escoge_k(List<Carta> cartas, int k) {
-		List<List<Carta>> devolver = new ArrayList();
+		List<List<Carta>> devolver = new ArrayList<List<Carta>>();
 
 		List<Carta> mano = new ArrayList<Carta>();
 
@@ -360,7 +342,8 @@ public final class Analizador {
      *
      * @author http://rosettacode.org/wiki/Evaluate_binomial_coefficients#Java
      */
-    private static int binomial(int n, int k) {
+    @SuppressWarnings("unused")
+	private static int binomial(int n, int k) {
         if (k>n-k)
             k=n-k;
 
@@ -383,24 +366,26 @@ public final class Analizador {
     	
     	class ComparadorJugador implements Comparator<JugadorHoldem> {
 			public int compare(JugadorHoldem j1, JugadorHoldem j2) {
-				return comparaJugadas(j1.getJugadas().get(0), j2.getJugadas().get(0));
+				return (-1) * comparaJugadas(j1.getJugada(), j2.getJugada());
 			}
 		}
     	list.sort(new ComparadorJugador());
         return list;
     } 
     
+  //Se encarga de comprobar si hay escalera en la lista de cartas y, en caso de haberla, devuelve
+    //la carta con más valor de la escalera.
     private static Carta hayEscalera(List<Carta> cartas){
     	int size = cartas.size() , index = 1, valorAnterior = cartas.get(0).getValor().getValor();
-    	Carta mejorCarta = cartas.get(0);
     	
-    	//posible escalera empezada en As (As no actua como "1" )
-    	if(cartas.get(size-1).getValor() == E_Carta_Valor.A &&
-    			cartas.get(0).getValor() == E_Carta_Valor.K){     		
-    		size--; //contamos con que el As es el primero de la escalera y K el segundo
-    		mejorCarta = cartas.get(size);
-    	}   	    	
-    
+    	//posible escalera empezada en As (As actua como "1" )
+    	if(cartas.get(0).getValor() == E_Carta_Valor.A &&
+    			cartas.get(size - 1).getValor() == E_Carta_Valor.DOS)  { 
+    		index++;
+    		valorAnterior = cartas.get(1).getValor().getValor();
+    	}
+  	    	
+    	//vamos comprobando que el valor actual sea igual que el valor anterior - 1
 		while( index < size ){
 			if(cartas.get(index).getValor().getValor() == valorAnterior - 1 )
 				valorAnterior--;
@@ -409,9 +394,14 @@ public final class Analizador {
 			index++;
 		}       
     	
-		return mejorCarta;
+		if(cartas.get(1).getValor() == E_Carta_Valor.CINCO)
+			return cartas.get(1);
+		
+		return cartas.get(0);
     }
     
+    //Se encarga de comprobar si hay color en la lista de cartas y, en caso de haberlo, devuelve
+    //la carta con más valor de la escalera.
     private static Carta hayColor(List<Carta> cartas){
     	int index = 1;  //el 0 ya esta evaluado
     	E_Carta_Palo palo = cartas.get(0).getPalo();    	
@@ -421,15 +411,13 @@ public final class Analizador {
     			return null;
     		else
     			index++;
-    	
-    	//Si hay color, devolvemos la mejor carta
-    	if (cartas.get(4).getValor() == E_Carta_Valor.A)
-    		return cartas.get(4);
-    	
+    	    	
     	return cartas.get(0);
     }
     
-    private static Carta hayTrio(List<Carta> cartas){
+    //Se encarga de comprobar si hay trio en la lista de cartas y, en caso de haberlo, devuelve
+    //una carta perteneciente al trio.
+    private static Carta hayTrio(List<Carta> cartas){     	
     	Carta a = null, b = null, c = null;
     	int index = 0, iguales[] = {0, 0, 0};
     	
@@ -471,7 +459,9 @@ public final class Analizador {
     	return null;
     }
     
-    private static Carta hayPareja(List<Carta> cartas){
+    //Se encarga de comprobar si hay pareja en la lista de cartas y, en caso de haberlo, devuelve
+    //una carta perteneciente a la pareja.
+    private static Carta hayPareja(List<Carta> cartas){    	
     	Carta a = null, b = null, c = null, d = null;
     	int index = 0, iguales[] = {0, 0, 0, 0};
     	
@@ -522,6 +512,8 @@ public final class Analizador {
     	return null;
     }
     
+    //Se encarga de comprobar si hay doble pareja en la lista de cartas y, en caso de haberlo, 
+    //devuelve una carta perteneciente a cada pareja (de mayor a menor).
     private static List<Carta> hayDobles(List<Carta> cartas){
     	Carta a = null, b = null, c = null;
     	int index = 0, iguales[] = {0, 0, 0};
@@ -565,6 +557,8 @@ public final class Analizador {
     	return solucion;
     }
     
+    //Se encarga de comprobar si hay poker en la lista de cartas y, en caso de haberlo, devuelve
+    //una carta perteneciente al poker.
     private static Carta hayPoker(List<Carta> cartas){
     	Carta a = null, b = null;
     	int index = 0, iguales[] = {0, 0};
@@ -601,11 +595,13 @@ public final class Analizador {
     
     //PROYECTOS
     
+    //Se encarga de comprobar si hay proyecto de color en la lista de cartas y, en caso de haberlo,
+    //devuelve true
     private static boolean hayFlushDraw(List<Carta> cartas){
     	E_Carta_Palo color1, color2;	
     	int[] colores = {0, 0};
-    	//Hay 2 colores distintos (por defecto ponemos el color de la primera carta
-    	
+		
+    	//Hay 2 colores distintos (por defecto ponemos el color de la primera carta    	
     	color1 = cartas.get(0).getPalo();
     	color2 = color1;
     	
@@ -631,55 +627,56 @@ public final class Analizador {
     		return false;    	
     }
     
+    //Se encarga de comprobar si hay gutshot en la lista de cartas y, en caso de haberlo, 
+    //devuelve true
     private static boolean hayGutShot(List<Carta> cartas){
     	int size = cartas.size() , index = 1, valorAnterior = cartas.get(0).getValor().getValor();
-    	boolean casoEspecialAK = false;
+    	boolean casoEspecialA2 = false;
     	int gutshot = 1, cartaSobrante = 1;	//numero de cartas para completar el proyecto
     	
-    	//posible escalera empezada en As (As no actua como "1" )
-    	if(cartas.get(size-1).getValor() == E_Carta_Valor.A &&
-    			cartas.get(0).getValor() == E_Carta_Valor.K){     		
-    		size--; //contamos con que el As es el primero de la escalera y K el seundo  
-    		casoEspecialAK = true;
+    	
+    	//posible escalera empezada en As (As actua como "1" )
+    	if(cartas.get(0).getValor() == E_Carta_Valor.A &&
+    			(cartas.get(1).getValor() == E_Carta_Valor.CINCO || 
+    			cartas.get(2).getValor() == E_Carta_Valor.CINCO)){
+    		valorAnterior = 5;
+    		casoEspecialA2 = true;
+    		
+    		if(cartas.get(1).getValor() == E_Carta_Valor.CINCO){ //cartaSobrante al final
+    			index++;
+    		}
+    		else{ 	//cartaSobrante al principio
+    			cartaSobrante--;
+    			index+=2;
+    		}
     	}   
     	
-    	//// Caso del gutshot = K
-    	if(cartas.get(size-1).getValor() == E_Carta_Valor.A &&
-    			cartas.get(0).getValor() == E_Carta_Valor.Q){
+    	// Caso del gutshot entre el A y el 3
+    	if(cartas.get(0).getValor() == E_Carta_Valor.A && casoEspecialA2 &&
+    			cartas.get(size-1).getValor() == E_Carta_Valor.TRES){
     		gutshot--;
-    		cartaSobrante--;
-    		size-=2;
+    		size--;
     	}
     	
     	
-		while( index < size ){
+		for(; index < size; index++ ){
 			if(cartas.get(index).getValor().getValor() == valorAnterior - 1 )
 				valorAnterior--;
 			else if(index == 1 && cartas.get(index).getValor().getValor() == valorAnterior - 2){ // Si el gutshot esta entre la pos 0 y la 1
 				gutshot--;
 				valorAnterior = cartas.get(index).getValor().getValor();
 			}
-			else if (((index == 1 || index == 4) && cartaSobrante > 0 && !casoEspecialAK) || 
-					((index == 1 || index == 3) && cartaSobrante > 0 && casoEspecialAK)){
-				if (casoEspecialAK && index == 1 && cartas.get(index ).getValor().getValor() == valorAnterior - 2){
-					gutshot--;
-					valorAnterior -= 2;
-				}
-				else if(casoEspecialAK && index != 3)					
-					return false;
-				else{
+			else if ((index == 1 || index == 4) && cartaSobrante > 0 && !casoEspecialA2){				
 					valorAnterior = cartas.get(index).getValor().getValor();
-					cartaSobrante--;
-				}				
+					cartaSobrante--;								
 			}
-			else if (gutshot > 0 && index < size && cartas.get(index).getValor().getValor() == valorAnterior - 2){
+			else if (gutshot > 0 && 
+					cartas.get(index).getValor().getValor() == valorAnterior - 2){
 				valorAnterior -= 2;
-				gutshot--;
-				
+				gutshot--;				
 			}
 			else
 				return false;
-			index++;
 		}       
 		
 		if(cartaSobrante == 0 && gutshot == 0)
@@ -688,29 +685,62 @@ public final class Analizador {
 		return false;
     }
     
+    //Se encarga de comprobar si hay OESD en la lista de cartas y, en caso de haberlo, 
+    //devuelve true
     private static boolean hayOESD(List<Carta> cartas){
     	int size = cartas.size() , index = 1, valorAnterior = cartas.get(0).getValor().getValor();
     	 
-    	//quitar casos de escalera esquina y aï¿½adir nuevo metodo
+    	//quitar casos de escalera esquina
+    	if(cartas.get(0).getValor() == E_Carta_Valor.A && 
+    			(cartas.get(size-1).getValor() == E_Carta_Valor.DOS || 
+    			cartas.get(1).getValor() == E_Carta_Valor.K))
+    		return false;
+    	   	
     	int nFallos = 1;	//numero de cartas para completar el proyecto
-    	while( index < size ){
+    	for( ;index < size; index++ ){
 			if(cartas.get(index).getValor().getValor() == valorAnterior - 1 )
-				valorAnterior--;
-			else if ( cartas.get(index).getValor() == E_Carta_Valor.K && cartas.get(size-1).getValor() == E_Carta_Valor.A)
 				valorAnterior--;
 			else if ((index == 1 || index == 4) && nFallos > 0){
 				valorAnterior = cartas.get(index).getValor().getValor();
 				nFallos--;
 			}
 			else
-				return false;
-			//if nFallos es 0 true, sino false
-			index++;
-		}     
+				return false;	
+		}   
+    	
+    	//if nFallos es 0 true, sino false (para que no coja tambien la escalera completa)
+		if(nFallos != 0)
+			return false;
     	return true;
     }
-    private static boolean hayDrawStraight(List<Carta> cartas){
-    	return false;
+    
+    //Se encarga de comprobar si hay proyecto de escalera en la lista de cartas y, en caso de haberlo, 
+    //devuelve true
+    private static boolean hayStraightDraw(List<Carta> cartas){
+    	int cartaSobrante = 1, index = 1;
+    	int valorAnterior = cartas.get(0).getValor().getValor();
+    	
+    	if(cartas.get(0).getValor() == E_Carta_Valor.A &&
+    			(cartas.get(1).getValor() == E_Carta_Valor.CUATRO ||
+    			cartas.get(2).getValor() == E_Carta_Valor.CUATRO)){    		
+    		valorAnterior = 4;
+    		if(cartas.get(1).getValor() == E_Carta_Valor.CUATRO)
+    			index++;
+    		else{
+    			index += 2;
+    			cartaSobrante--;
+    		}
+    		
+    		for(; index <  cartas.size(); index++){
+    			if(cartas.get(index).getValor().getValor() == valorAnterior-1)
+    				valorAnterior--;
+    			else if(index == 4 && cartaSobrante > 0)
+    				cartaSobrante--;
+    			else
+    				return false;
+    		}
+    	}
+    		
+		return true;    	
     }
-
 }

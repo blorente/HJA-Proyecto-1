@@ -9,7 +9,7 @@ public class E_Jugada_Tipo {
     private final String nombre;
     private final int ranking;
 
-    private E_Jugada_Tipo (String nombre, int ranking) {
+    private E_Jugada_Tipo(String nombre, int ranking) {
         this.nombre = nombre;
         this.ranking = ranking;
     }
@@ -32,7 +32,10 @@ public class E_Jugada_Tipo {
     public static final E_Jugada_Tipo TWO_PAIR = new E_Jugada_Tipo("Two Pairs", 3);
     public static final E_Jugada_Tipo PAIR = new E_Jugada_Tipo("Pair", 2);
     public static final E_Jugada_Tipo HIGH_CARD = new E_Jugada_Tipo("High Card", 1);
-    public static final E_Jugada_Tipo OESD = new E_Jugada_Tipo("Open-ended Straight Draw", 0);
-    public static final E_Jugada_Tipo GUTSHOT = new E_Jugada_Tipo("Straight Gut-shot Draw", 0);
-    public static final E_Jugada_Tipo FLUSH_DRAW = new E_Jugada_Tipo("Flush Draw", 0);
+    public static final E_Jugada_Tipo NADA = new E_Jugada_Tipo("NADA", 0);
+    
+    
+    //public static final E_Jugada_Tipo OESD = new E_Jugada_Tipo("Open-ended Straight Draw", 0);
+    //public static final E_Jugada_Tipo GUTSHOT = new E_Jugada_Tipo("Straight Gut-shot Draw", 0);
+    //public static final E_Jugada_Tipo FLUSH_DRAW = new E_Jugada_Tipo("Flush Draw", 0);
 }

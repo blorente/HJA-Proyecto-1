@@ -12,7 +12,6 @@ import java.util.List;
 
 import analizador.Analizador;
 import componentes.Carta;
-import componentes.I_Jugada;
 import componentes.JugadaValor;
 import componentes.JugadorHoldem;
 import componentes.JugadorOmaha;
@@ -48,9 +47,9 @@ public class Main {
 					while ((line = br.readLine())!= null) {						
 						
 						manos++;
-//						if (line.length() != 10)
-//							throw new ErrorTamLinea(); // �O CAMBIAR POR ErrorParseo("mensaje")?
-//						
+						if (line.length() != 10)
+							throw new ErrorTamLinea(); // �O CAMBIAR POR ErrorParseo("mensaje")?
+						
                         //Instanciar una sola Mano.
                         Mano mano = new Mano();
                         	
@@ -61,18 +60,29 @@ public class Main {
                         }
                         
                        	//Analizar la mano con el Analizador.
-                       	List<JugadaValor> jugadas = Analizador.analizaMano(mano);
+                       	JugadaValor jugada = Analizador.analizaMano(mano);
                        	
                        	//Imprimir en el archivo de salida las jugadas de la mano.
                        	bw.write(line);
                        	bw.newLine();
-						for (JugadaValor jugada : jugadas) {
-							bw.write(" - ");
-							bw.write(jugada.toString());
-	                       	bw.newLine();
-						}							
-						bw.newLine();
-						
+                       	bw.write(jugada.toString());
+                       	if (jugada.getFlushDraw()) {
+							bw.write(" - Flush Draw");
+							bw.newLine();
+						}
+						if (jugada.getGutShot()) {
+							bw.write(" - Straight Gut-shot Draw");
+							bw.newLine();
+						}
+						if (jugada.getOESD()) {
+							bw.write(" - Open-ended Straight Draw");
+							bw.newLine();
+						}
+						if (jugada.getStraightDraw()) {
+							bw.write(" - Straight Draw");
+							bw.newLine();
+						}
+                       	bw.newLine();					
 					}
 					break;
 					
@@ -98,15 +108,31 @@ public class Main {
 						}
 						
 						//Analizar lo que tiene el jugador.
-						List<JugadaValor> jugadas = Analizador.analizaJugador(jugadorHoldem, mesa);
+						JugadaValor jugada = Analizador.analizaJugador(jugadorHoldem, mesa);
 						
 						//Imprimir en el archivo de salida la salida.
 						bw.write(line);
 						bw.newLine();
-						for (JugadaValor jugada : jugadas) {
-							lineaSalida = " - " + jugada.toString();
-							bw.write(lineaSalida);
-					        bw.newLine();
+						bw.write(" - ");
+						bw.write(jugada.toString());
+					    bw.newLine();
+						if (numCartasComunes < 5) {
+							if (jugada.getFlushDraw()) {
+								bw.write(" - Flush Draw");
+								bw.newLine();
+							}
+							if (jugada.getGutShot()) {
+								bw.write(" - Straight Gut-shot Draw");
+								bw.newLine();
+							}
+							if (jugada.getOESD()) {
+								bw.write(" - Open-ended Straight Draw");
+								bw.newLine();
+							}
+							if (jugada.getStraightDraw()) {
+								bw.write(" - Straight Draw");
+								bw.newLine();
+							}
 						}
 						bw.newLine();
 					}
@@ -126,17 +152,18 @@ public class Main {
 						ArrayList<JugadorHoldem> listaJugadores = new ArrayList<JugadorHoldem>();
 						for (int j = 1; j <= numJugadores; j++) {
 							JugadorHoldem jugadorHoldem = new JugadorHoldem();
+							jugadorHoldem.setId(datosLinea[j].substring(0, 2));
 							for (int i = 0; i < 2; i++) {
-								jugadorHoldem.setId(datosLinea[j].substring(0, 2));
-	                       		Carta carta = Parser.parseaCarta(datosLinea[j].substring(2+(2*i),2+(2*i+2)));
+								Carta carta = Parser.parseaCarta(datosLinea[j].substring(2+(2*i),2+(2*i+2)));
 	                       		jugadorHoldem.anadirCarta(carta);
 	                       	}
+							listaJugadores.add(jugadorHoldem);
 						}
 						
                         //Crear una instancia de Mesa y llenar con las cartas comunitarias
 						ArrayList<Carta> mesa = new ArrayList<Carta>();
 						for (int i = 0; i < 5; i++) {
-                        	Carta carta = Parser.parseaCarta(datosLinea[2].substring(2*i, 2*i+2));
+							Carta carta = Parser.parseaCarta(datosLinea[numJugadores + 1].substring(2*i, 2*i+2));
                         	mesa.add(carta);
 						}
 						
@@ -147,8 +174,8 @@ public class Main {
 						bw.write(line);
 						bw.newLine();
 						for (JugadorHoldem jugadorHoldem : jugadoresOrdenados) {
-							List<JugadaValor> jugadas = jugadorHoldem.getJugadas();
-							lineaSalida = jugadorHoldem.getId() + ": " + jugadas.get(0).toString();
+							JugadaValor jugada = jugadorHoldem.getJugada();
+							lineaSalida = jugadorHoldem.getId() + ": " + jugada.toString();
 							bw.write(lineaSalida);
 					        bw.newLine();
 						}
@@ -178,15 +205,27 @@ public class Main {
 						}
 						
 						//Analizar lo que tiene el jugador.
-						List<I_Jugada> jugadas = Analizador.analizaJugadorOmaha(jugadorOmaha, mesa);
+						JugadaValor jugada = Analizador.analizaJugadorOmaha(jugadorOmaha, mesa);
 						
 						//Imprimir en el archivo de salida la salida.
 						bw.write(line);
 						bw.newLine();
-						for (I_Jugada jugada : jugadas) {
-							lineaSalida = " - " + jugada.toString();
-							bw.write(lineaSalida);
-					        bw.newLine();
+						bw.write(" - ");
+						bw.write(jugada.toString());
+					    bw.newLine();
+						if (numCartasComunes < 5) {
+							if (jugada.getFlushDraw()) {
+								bw.write(" - Flush Draw");
+								bw.newLine();
+							}
+							if (jugada.getGutShot()) {
+								bw.write(" - Straight Gut-shot Draw");
+								bw.newLine();
+							}
+							if (jugada.getOESD()) {
+								bw.write(" - Open-ended Straight Draw");
+								bw.newLine();
+							}
 						}
 						bw.newLine();
 					}

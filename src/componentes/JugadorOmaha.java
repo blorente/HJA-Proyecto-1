@@ -17,9 +17,9 @@ public class JugadorOmaha implements I_Jugador{
     private List<Carta> cartas;
 
     /**
-     * Lista de jugadas que tiene la mano, ordenadas de mejor a peor.
+     * Jugada que tiene la mano
      */
-    private List<JugadaValor> jugadas;
+    private JugadaValor jugada;
     
     /**
      * ID del jugador
@@ -80,10 +80,15 @@ public class JugadorOmaha implements I_Jugador{
     public List<Carta> getCartas() {
         return cartas;
     }
+    
+    public void setJugada(JugadaValor jugada) {
+		this.jugada = jugada;
+	}
 
-    public List<JugadaValor> getJugadas() {
-        return jugadas;
-    }
+	public JugadaValor getJugada() {
+		return this.jugada;
+	}
+    
     public String getId() {
     	return id;
     }
@@ -99,5 +104,7 @@ public class JugadorOmaha implements I_Jugador{
     public String toString() {
         return "";
     }
+
+	
 
 }
