@@ -37,23 +37,185 @@ public final class Analizador {
     //-----------------------
     // M�TODOS PROPIOS
     //-----------------------
-    
-   
 
-    /**
-     * M�todo que analiza la mano que le pasas, y devuelve una lusta de jugadas.
-     * @param m Mano a analizar.
-     * @return lista con todas la s jugadas que tiene esa mano (OEASD, Parejas, tr�os...)
-     *
-     * Precondici�n: m tiene como m�ximo 5 cartas.
-     * Postcondici�n: La lista de retorno tiene la mejor mano como primer elemento
-     */
+	/**
+	 * M�todo que analiza la mano que le pasas, y devuelve una lusta de jugadas.
+	 * @param m Mano a analizar.
+	 * @return lista con todas la s jugadas que tiene esa mano (OEASD, Parejas, tr�os...)
+	 *
+	 * Precondici�n: m tiene como m�ximo 5 cartas.
+	 * Postcondici�n: La lista de retorno tiene la mejor mano como primer elemento
+	 */
+	public static JugadaValor analizaMano(Mano m) {
+
+        List<Carta> cartas = m.getCartas();
+
+        // Ordenar las cartas de mayor a menor por su valor
+        class ComparadorCarta implements Comparator<Carta> {
+            public int compare(Carta c1, Carta c2) {
+                if (c1.getValor().getValor() > c2.getValor().getValor())
+                    return -1;
+                else if (c1.getValor().getValor() < c2.getValor().getValor())
+                    return 1;
+                else
+                    return 0;
+            }
+        }
+        cartas.sort(new ComparadorCarta());
+
+        //Paso 1: Analizar mano
+		int[] cartasDePalo = {0, 0, 0, 0}; // = {#clubs, #hearts, #diamonds, #spades}
+
+        Carta anterior = cartas.get(0);
+
+        //Analiza la primera carta de la mano
+        cartasDePalo[anterior.getPalo().getIdnum()]++;
+
+        //Variables para analizar jugadas con parejas (Pair+)
+        E_Jugada_Tipo jugadaParejas = E_Jugada_Tipo.HIGH_CARD;
+        E_Carta_Valor[] valoresDeJugadasParejas = new E_Carta_Valor[2];
+        valoresDeJugadasParejas[0] = anterior.getValor();
+        int cartasIgualesSeguidas = 1;
+        int indexDeParejas = 0; //Index para saber cuantas parejas llevamos
+
+        //Variables para analizar jugadas con straight
+        boolean puedeHaberProyectoEscalera = true;
+        boolean hayUnHueco = false;
+        int cartasEnElProyecto = 1;
+        boolean puedeHaberRueda = false;
+
+        for (int i = 1; i < cartas.size(); i++) {
+            //Cogemos la siguiente carta a analizar
+            Carta current = cartas.get(i);
+
+            //Gran bloque if para analizar manos con parejas (Pair+)
+            if (current.getValor() == anterior.getValor()) {
+
+                if (jugadaParejas == E_Jugada_Tipo.HIGH_CARD) {
+                    jugadaParejas = E_Jugada_Tipo.PAIR;
+                    valoresDeJugadasParejas[indexDeParejas] = current.getValor();
+                } else if (jugadaParejas == E_Jugada_Tipo.PAIR) {
+                    if (indexDeParejas > 0) { //Ya teníamos una pareja de antes, distinta a esta
+
+                        jugadaParejas = E_Jugada_Tipo.TWO_PAIR;
+                        valoresDeJugadasParejas[indexDeParejas] = current.getValor();
+
+                    } else { //Tenemos un trío
+
+                        jugadaParejas = E_Jugada_Tipo.THREE_OF_A_KIND;
+
+                    }
+                } else if (jugadaParejas == E_Jugada_Tipo.THREE_OF_A_KIND) {
+
+                    if (indexDeParejas > 0) { //Teníamos un trío de antes, difernte a este. Ahora tenemos un FH
+                        jugadaParejas = E_Jugada_Tipo.FULL_HOUSE;
+                        valoresDeJugadasParejas[indexDeParejas] = current.getValor();
+                    } else { //El trío es del mismo valor que current -> Tenemos un POKER
+                        jugadaParejas = E_Jugada_Tipo.FOUR_OF_A_KIND;
+                    }
+                } else if (jugadaParejas == E_Jugada_Tipo.TWO_PAIR) {
+
+                    jugadaParejas = E_Jugada_Tipo.FULL_HOUSE;
+
+                }
+                cartasIgualesSeguidas++;
+            } else {
+
+                if (cartasIgualesSeguidas >= 2) {
+                    indexDeParejas++;
+                }
+
+                cartasIgualesSeguidas = 0;
+            }
+
+            //Gran bloque if para comprobar escaleras y proyectos de escalera
+
+            int distanciaEntreValores = anterior.getValor().getValor() - current.getValor().getValor(); //Siempre >= 1
+
+            if (cartas.get(0).getValor() == E_Carta_Valor.A && !puedeHaberRueda) { //Para permitir wheel draws
+                if (current.getValor() == E_Carta_Valor.CINCO) {
+                    distanciaEntreValores = 1;
+                    puedeHaberRueda = true;
+                } else if (current.getValor() == E_Carta_Valor.CUATRO) {
+                    distanciaEntreValores = 2;
+                    puedeHaberRueda = true;
+                }
+
+            }
+
+
+            if (distanciaEntreValores > 2 && cartasEnElProyecto > 1 && cartasEnElProyecto < 4) { //Ya no puede haber proyectos de escalera
+                puedeHaberProyectoEscalera = false;
+            } else if (puedeHaberProyectoEscalera) {
+
+                if (distanciaEntreValores == 1) { //Son cartas contiguas
+                    cartasEnElProyecto++;
+                } else if (distanciaEntreValores == 2) {
+                    if (hayUnHueco) { //Si ya habia un hueco antes, no se puede hacer proyecto de escalera
+                        if (cartasEnElProyecto < 4) {
+                            puedeHaberProyectoEscalera = false;
+                        }
+                    } else {
+                        hayUnHueco = true;
+                        cartasEnElProyecto++;
+                    }
+                } //Si la distancia es 0, se ignora
+
+            }
+
+            //Aumentamos la cuenta de color
+            cartasDePalo[current.getPalo().getIdnum()]++;
+
+            //Ponemos la carta que acabamos de analizar como "anterior"
+            anterior = current;
+		}
+
+        //Paso 2: Parsear resultados y rellenar jugada
+        JugadaValor jugada = new JugadaValor(jugadaParejas);
+
+        //Marcar escaleras
+        if (puedeHaberProyectoEscalera) {
+            if (cartasEnElProyecto == 5) {
+                jugada = new JugadaValor(E_Jugada_Tipo.STRAIGHT, cartas, m);
+            } else if (cartasEnElProyecto == 4) {
+                //Casos especiales: AKQJX y AX432
+                if (puedeHaberRueda ||
+                        (cartas.get(0).getValor() == E_Carta_Valor.A && cartas.get(3).getValor() == E_Carta_Valor.J)) {
+                    jugada.setStraightDraw(true);
+                } else if (hayUnHueco) { //Resto de casos
+                    jugada.setGutShot(true);
+                } else {
+                    jugada.setOESD(true);
+                }
+            }
+        }
+
+        //Marcar color
+        for (int i = 0; i < cartasDePalo.length; i++) {
+            if (cartasDePalo[i] == 4) {
+                jugada.setFlushDraw(true);
+            } else if (cartasDePalo[i] == 5) {
+                if (jugada.getTipo() == E_Jugada_Tipo.STRAIGHT) {
+                    jugada = new JugadaValor(E_Jugada_Tipo.STRAIGHT_FLUSH, cartas, m);
+                } else {
+                    jugada = new JugadaValor(E_Jugada_Tipo.FLUSH, cartas, m);
+                }
+            }
+        }
+
+		return jugada;
+	}
+
+
+   /* *//**
+     * Antigua implementacion de analizaMano
+     *//*
     public static JugadaValor analizaMano(Mano m) {
     	    	
     	JugadaValor jugada;
     	List<Carta> cartaSolucion = new ArrayList<Carta>(); //necesitamos List para el caso de Full y Dobles
     	List<Carta> cartas = m.getCartas();
-    	
+
     	// Ordenar las cartas de mayor a menor por su valor
     	class ComparadorCarta implements Comparator<Carta> {
 			public int compare(Carta c1, Carta c2) {
@@ -118,7 +280,7 @@ public final class Analizador {
     	jugada.setStraightDraw(hayStraightDraw(cartas));
     	
     	return jugada;
-    }
+    }*/
 
     /**
      * M�todo que compara dos manos, y devuelve un float diciendo cu�l es la mejor
@@ -373,8 +535,8 @@ public final class Analizador {
         return list;
     } 
     
-  //Se encarga de comprobar si hay escalera en la lista de cartas y, en caso de haberla, devuelve
-    //la carta con m�s valor de la escalera.
+  /*//Se encarga de comprobar si hay escalera en la lista de cartas y, en caso de haberla, devuelve
+    //la carta con m�s valor de la escalera.
     private static Carta hayEscalera(List<Carta> cartas){
     	int size = cartas.size() , index = 1, valorAnterior = cartas.get(0).getValor().getValor();
     	
@@ -401,7 +563,7 @@ public final class Analizador {
     }
     
     //Se encarga de comprobar si hay color en la lista de cartas y, en caso de haberlo, devuelve
-    //la carta con m�s valor de la escalera.
+    //la carta con m�s valor de la escalera.
     private static Carta hayColor(List<Carta> cartas){
     	int index = 1;  //el 0 ya esta evaluado
     	E_Carta_Palo palo = cartas.get(0).getPalo();    	
@@ -742,5 +904,5 @@ public final class Analizador {
     	}
     		
 		return true;    	
-    }
+    }*/
 }

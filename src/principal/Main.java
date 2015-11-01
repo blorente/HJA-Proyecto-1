@@ -65,6 +65,7 @@ public class Main {
                        	//Imprimir en el archivo de salida las jugadas de la mano.
                        	bw.write(line);
                        	bw.newLine();
+						bw.write(" - Best hand: ");
                        	bw.write(jugada.toString());
                        	if (jugada.getFlushDraw()) {
 							bw.write(" - Flush Draw");

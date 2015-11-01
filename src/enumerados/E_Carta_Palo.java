@@ -9,9 +9,15 @@ package enumerados;
 public class E_Carta_Palo {
 
     private final String nombre;
+    private final int idnum;
 
-    private E_Carta_Palo (String nombre) {
+    private E_Carta_Palo(String nombre, int idnum) {
         this.nombre = nombre;
+        this.idnum = idnum;
+    }
+
+    public int getIdnum() {
+        return idnum;
     }
 
     @Override
@@ -19,9 +25,9 @@ public class E_Carta_Palo {
         return this.nombre;
     }
 
-    public static final E_Carta_Palo CLUBS       = new E_Carta_Palo("c");
-    public static final E_Carta_Palo HEARTS      = new E_Carta_Palo("h");
-    public static final E_Carta_Palo DIAMONDS    = new E_Carta_Palo("d");
-    public static final E_Carta_Palo SPADES      = new E_Carta_Palo("s");
+    public static final E_Carta_Palo CLUBS       = new E_Carta_Palo("c", 0);
+    public static final E_Carta_Palo HEARTS      = new E_Carta_Palo("h", 1);
+    public static final E_Carta_Palo DIAMONDS    = new E_Carta_Palo("d", 2);
+    public static final E_Carta_Palo SPADES      = new E_Carta_Palo("s", 3);
 
 }

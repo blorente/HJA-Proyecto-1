@@ -85,6 +85,7 @@ public class JugadaValor implements I_Jugada {
 			strBuild.append("with ");
 			strBuild.append(mano.toString());
 		}
+		strBuild.append("\n");
 		return strBuild.toString();
 	}
 	
